@@ -18,7 +18,7 @@ namespace Executor.Console
             threadPoolExecutor.Start();
 
             var shortDelayCommand = new ShortDelayCommand();
-            for (int i = 1; i <= 1; i++)
+            for (int i = 1; i <= 5; i++)
             {
 #pragma warning disable 4014
                 executor.SubmitCommandForExecution(shortDelayCommand, $"{i}-single");

@@ -12,4 +12,15 @@ namespace Executor.Console.Commands
 
         protected abstract Task Execute(TArgs args);
     }
+
+    public abstract class VoidCommand : ICommand<Unit, Unit>
+    {
+        async Task<Unit> ICommand<Unit, Unit>.Execute(Unit args)
+        {
+            await Execute();
+            return default(Unit);
+        }
+
+        protected abstract Task Execute();
+    }
 }

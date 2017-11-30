@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Executor.Console.Commands;
 
-namespace Executor.Console
+namespace Executor.Console.Executors
 {
     public class CommandExecutionRequest<TArgs, TResult> : CommandExecution
     {

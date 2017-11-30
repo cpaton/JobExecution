@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Executor.Console.Commands;
+using Executor.Console.Util;
 
-namespace Executor.Console
+namespace Executor.Console.Executors
 {
     public class SingleCommandAtOnceExecutor
     {

@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Executor.Console
+namespace Executor.Console.Executors
 {
     public abstract class CommandExecution
     {

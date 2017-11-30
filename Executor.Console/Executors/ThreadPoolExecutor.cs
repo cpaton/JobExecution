@@ -10,8 +10,8 @@ namespace Executor.Console.Executors
     public class ThreadPoolExecutor
     {
         private bool _running = false;
-        private List<Task> _outstandingTasks = new List<Task>();
-        private object _lockObject = new object();
+        private readonly List<Task> _outstandingTasks = new List<Task>();
+        private readonly object _lockObject = new object();
 
         public Task<TResult> SubmitCommandForExecution<TArgs, TResult>(ICommand<TArgs, TResult> command, TArgs args)
         {
@@ -26,6 +26,11 @@ namespace Executor.Console.Executors
             var commandExecutionRequest = new CommandExecutionRequest<TArgs, TResult>(command, args, Environment.StackTrace);
             ExecuteRequest(commandExecutionRequest);
             return commandExecutionRequest.ResultTask;
+        }
+
+        internal void SubmitCommandForExecution(VoidCommand command)
+        {
+            SubmitCommandForExecution(command, default(Unit));
         }
 
         public void Start()
