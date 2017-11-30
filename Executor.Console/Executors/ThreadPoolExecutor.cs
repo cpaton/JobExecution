@@ -44,7 +44,7 @@ namespace Executor.Console.Executors
             Logger.Log($"Executing {commandExecution}");
             ThreadPool.QueueUserWorkItem(_ => 
             {
-                var task = commandExecution.Execute();
+                var task = commandExecution.ExecuteJob();
                 _outstandingTasks.Add(task);
                 task.ContinueWith((t, __) => 
                 {

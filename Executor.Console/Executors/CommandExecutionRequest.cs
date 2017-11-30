@@ -10,10 +10,6 @@ namespace Executor.Console.Executors
         public ICommand<TArgs, TResult> Command { get; }
         public TArgs Args { get; }
         public Task<TResult> ResultTask { get; }
-        public TimeSpan RunTime => CompletedTimeUtc - StartTimeUtc;
-        public DateTimeOffset StartTimeUtc { get; private set; }
-        public DateTimeOffset CompletedTimeUtc { get; private set; }
-        public string RunTimeFriendly => $"{RunTime.Hours}h {RunTime.Minutes:00}m {RunTime.Seconds:00}s {RunTime.Milliseconds:000}ms";
 
         public CommandExecutionRequest(ICommand<TArgs, TResult> command, TArgs args, string requestTrace) : base(requestTrace)
         {
@@ -28,9 +24,8 @@ namespace Executor.Console.Executors
             return $"[{ExeuctionId}] {Command.GetType().Name}({Args}) - {ResultTask.Status}";
         }
 
-        public override async Task Execute()
+        protected override async Task Execute()
         {
-            StartTimeUtc = DateTimeOffset.UtcNow;
             try
             {
                 var commandResult = await Command.Execute(Args);
@@ -39,10 +34,6 @@ namespace Executor.Console.Executors
             catch (Exception e)
             {
                 _taskCompletionSource.SetException(e);
-            }
-            finally
-            {
-                CompletedTimeUtc = DateTimeOffset.UtcNow;
             }
         }
     }

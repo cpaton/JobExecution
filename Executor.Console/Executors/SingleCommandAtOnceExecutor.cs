@@ -110,7 +110,7 @@ namespace Executor.Console.Executors
             Logger.Log($"Executing {commandExecution}");
             try
             {
-                var executionTask = commandExecution.Execute();
+                var executionTask = commandExecution.ExecuteJob();
                 executionTask.Wait();
             }
             catch (Exception e)
