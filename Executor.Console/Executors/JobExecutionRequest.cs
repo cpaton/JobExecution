@@ -1,19 +1,19 @@
 using System;
 using System.Threading.Tasks;
-using Executor.Console.Commands;
+using Executor.Console.Job;
 
 namespace Executor.Console.Executors
 {
-    public class CommandExecutionRequest<TArgs, TResult> : CommandExecution
+    public class JobExecutionRequest<TArgs, TResult> : JobExecution
     {
         private readonly TaskCompletionSource<TResult> _taskCompletionSource;
-        public ICommand<TArgs, TResult> Command { get; }
+        public Job<TArgs, TResult> Job { get; }
         public TArgs Args { get; }
         public Task<TResult> ResultTask { get; }
 
-        public CommandExecutionRequest(ICommand<TArgs, TResult> command, TArgs args, string requestTrace) : base(requestTrace)
+        public JobExecutionRequest(Job<TArgs, TResult> job, TArgs args, string requestTrace) : base(requestTrace)
         {
-            Command = command;
+            Job = job;
             Args = args;
             _taskCompletionSource = new TaskCompletionSource<TResult>();
             ResultTask = _taskCompletionSource.Task;
@@ -21,14 +21,14 @@ namespace Executor.Console.Executors
 
         public override string ToString()
         {
-            return $"[{ExeuctionId}] {Command.GetType().Name}({Args}) - {ResultTask.Status}";
+            return $"[{ExeuctionId}] {Job.GetType().Name}({Args}) - {ResultTask.Status}";
         }
 
         protected override async Task Execute()
         {
             try
             {
-                var commandResult = await Command.Execute(Args);
+                var commandResult = await Job.Execute(Args);
                 _taskCompletionSource.SetResult(commandResult);
             }
             catch (Exception e)

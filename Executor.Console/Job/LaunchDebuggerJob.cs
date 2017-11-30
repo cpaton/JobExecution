@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace Executor.Console.Commands
+namespace Executor.Console.Job
 {
-    public class LaunchDebuggerCommand : VoidCommand
+    public class LaunchDebuggerJob : VoidJob
     {
         protected override Task Execute()
         {

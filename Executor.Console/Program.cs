@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Executor.Console.Commands;
 using Executor.Console.Executors;
+using Executor.Console.Job;
 using Executor.Console.Util;
 
 namespace Executor.Console
@@ -12,12 +12,12 @@ namespace Executor.Console
         public static async Task Main(string[] args)
         {
             Thread.CurrentThread.Name = "Main";
-            var executor = new SingleCommandAtOnceExecutor();
+            var executor = new SingleAtOnceExecutor();
             var threadPoolExecutor = new ThreadPoolExecutor();
             executor.Start();
             threadPoolExecutor.Start();
 
-            var shortDelayCommand = new ShortDelayCommand();
+            var shortDelayCommand = new ShortDelayJob();
             for (int i = 1; i <= 5; i++)
             {
 #pragma warning disable 4014

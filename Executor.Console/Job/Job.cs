@@ -1,8 +1,8 @@
 using System.Threading.Tasks;
 
-namespace Executor.Console.Commands
+namespace Executor.Console.Job
 {
-    public interface ICommand<TArgs, TResult>
+    public interface Job<TArgs, TResult>
     {
         Task<TResult> Execute(TArgs args);
     }

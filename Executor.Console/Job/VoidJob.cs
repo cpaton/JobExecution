@@ -1,10 +1,10 @@
 using System.Threading.Tasks;
 
-namespace Executor.Console.Commands
+namespace Executor.Console.Job
 {
-    public abstract class VoidCommand<TArgs> : ICommand<TArgs, Unit>
+    public abstract class VoidJob<TArgs> : Job<TArgs, Unit>
     {
-        async Task<Unit> ICommand<TArgs, Unit>.Execute(TArgs args)
+        async Task<Unit> Job<TArgs, Unit>.Execute(TArgs args)
         {
             await Execute(args);
             return default(Unit);
@@ -13,9 +13,9 @@ namespace Executor.Console.Commands
         protected abstract Task Execute(TArgs args);
     }
 
-    public abstract class VoidCommand : ICommand<Unit, Unit>
+    public abstract class VoidJob : Job<Unit, Unit>
     {
-        async Task<Unit> ICommand<Unit, Unit>.Execute(Unit args)
+        async Task<Unit> Job<Unit, Unit>.Execute(Unit args)
         {
             await Execute();
             return default(Unit);

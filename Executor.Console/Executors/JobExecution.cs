@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Executor.Console.Executors
 {
-    public abstract class CommandExecution
+    public abstract class JobExecution
     {
         protected abstract Task Execute();
         public Guid ExeuctionId { get; }
@@ -37,7 +37,7 @@ namespace Executor.Console.Executors
             return $"{delayBeforeStarting.Hours}h {delayBeforeStarting.Minutes:00}m {delayBeforeStarting.Seconds:00}s {delayBeforeStarting.Milliseconds:000}ms";
         }
 
-        protected CommandExecution(string requestTrace)
+        protected JobExecution(string requestTrace)
         {
             ExeuctionId = Guid.NewGuid();
             RequestTrace = requestTrace;

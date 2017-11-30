@@ -1,4 +1,4 @@
-namespace Executor.Console.Commands
+namespace Executor.Console.Job
 {
     public struct Unit
     {

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Executor.Console.Commands;
+using Executor.Console.Job;
 using Executor.Console.Util;
 
 namespace Executor.Console.Executors
@@ -13,24 +13,24 @@ namespace Executor.Console.Executors
         private readonly List<Task> _outstandingTasks = new List<Task>();
         private readonly object _lockObject = new object();
 
-        public Task<TResult> SubmitCommandForExecution<TArgs, TResult>(ICommand<TArgs, TResult> command, TArgs args)
+        public Task<TResult> SubmitCommandForExecution<TArgs, TResult>(Job<TArgs, TResult> job, TArgs args)
         {
             if (!_running)
             {
-                Logger.Log("No enqueing commandExecution as executor is stopped");
+                Logger.Log("No enqueing jobExecution as executor is stopped");
                 var taskCompletionSource = new TaskCompletionSource<TResult>();
                 taskCompletionSource.SetCanceled();
                 return taskCompletionSource.Task;
             }
 
-            var commandExecutionRequest = new CommandExecutionRequest<TArgs, TResult>(command, args, Environment.StackTrace);
+            var commandExecutionRequest = new JobExecutionRequest<TArgs, TResult>(job, args, Environment.StackTrace);
             ExecuteRequest(commandExecutionRequest);
             return commandExecutionRequest.ResultTask;
         }
 
-        internal void SubmitCommandForExecution(VoidCommand command)
+        internal void SubmitCommandForExecution(VoidJob job)
         {
-            SubmitCommandForExecution(command, default(Unit));
+            SubmitCommandForExecution(job, default(Unit));
         }
 
         public void Start()
@@ -39,12 +39,12 @@ namespace Executor.Console.Executors
             Logger.Log($"[{GetType().Name}] Starting");
         }
 
-        private void ExecuteRequest(CommandExecution commandExecution)
+        private void ExecuteRequest(JobExecution jobExecution)
         {
-            Logger.Log($"Executing {commandExecution}");
+            Logger.Log($"Executing {jobExecution}");
             ThreadPool.QueueUserWorkItem(_ => 
             {
-                var task = commandExecution.ExecuteJob();
+                var task = jobExecution.ExecuteJob();
                 _outstandingTasks.Add(task);
                 task.ContinueWith((t, __) => 
                 {

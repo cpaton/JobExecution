@@ -2,36 +2,36 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Executor.Console.Commands;
+using Executor.Console.Job;
 using Executor.Console.Util;
 
 namespace Executor.Console.Executors
 {
-    public class SingleCommandAtOnceExecutor
+    public class SingleAtOnceExecutor
     {
-        private readonly Queue<CommandExecution> _executionQueue = new Queue<CommandExecution>();
+        private readonly Queue<JobExecution> _executionQueue = new Queue<JobExecution>();
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly object _lockObject = new object();
         private readonly ManualResetEvent _stopped = new ManualResetEvent(true);
         private Thread _executionThread;
 
-        public Task<TResult> SubmitCommandForExecution<TArgs, TResult>(ICommand<TArgs, TResult> command, TArgs args)
+        public Task<TResult> SubmitCommandForExecution<TArgs, TResult>(Job<TArgs, TResult> job, TArgs args)
         {
             if (_cancellationTokenSource.IsCancellationRequested)
             {
-                Logger.Log("No enqueing commandExecution as executor is stopped");
+                Logger.Log("No enqueing jobExecution as executor is stopped");
                 var taskCompletionSource = new TaskCompletionSource<TResult>();
                 taskCompletionSource.SetCanceled();
                 return taskCompletionSource.Task;
             }
 
-            var commandExecutionRequest = new CommandExecutionRequest<TArgs, TResult>(command, args, Environment.StackTrace);
+            var commandExecutionRequest = new JobExecutionRequest<TArgs, TResult>(job, args, Environment.StackTrace);
 
             if (Monitor.TryEnter(_lockObject, TimeSpan.FromMinutes(1)))
             {
                 try
                 {
-                    Logger.Log("Enqueuing command");
+                    Logger.Log("Enqueuing job");
                     _executionQueue.Enqueue(commandExecutionRequest);
                     Monitor.Pulse(_lockObject);
                 }
@@ -60,7 +60,7 @@ namespace Executor.Console.Executors
 
         private void ExecutionLoop()
         {
-            Logger.Log("SingleCommandAtOnceExecutor starting");
+            Logger.Log("SingleAtOnceExecutor starting");
 
             _stopped.Reset();
             var cancellationToken = _cancellationTokenSource.Token;
@@ -68,14 +68,14 @@ namespace Executor.Console.Executors
             var continueToProcessWork = true;
             while (continueToProcessWork)
             {
-                CommandExecution commandExecution = null;
+                JobExecution jobExecution = null;
                 if (Monitor.TryEnter(_lockObject, TimeSpan.FromMinutes(1)))
                 {
                     try
                     {
                         if (_executionQueue.Count > 0)
                         {
-                            commandExecution = _executionQueue.Dequeue();
+                            jobExecution = _executionQueue.Dequeue();
                         }
                         else
                         {
@@ -95,9 +95,9 @@ namespace Executor.Console.Executors
                     }
                 }
 
-                if (commandExecution != null)
+                if (jobExecution != null)
                 {
-                    ExecuteRequest(commandExecution);
+                    ExecuteRequest(jobExecution);
                 }
             }
 
@@ -105,17 +105,17 @@ namespace Executor.Console.Executors
             _stopped.Set();
         }
 
-        private void ExecuteRequest(CommandExecution commandExecution)
+        private void ExecuteRequest(JobExecution jobExecution)
         {
-            Logger.Log($"Executing {commandExecution}");
+            Logger.Log($"Executing {jobExecution}");
             try
             {
-                var executionTask = commandExecution.ExecuteJob();
+                var executionTask = jobExecution.ExecuteJob();
                 executionTask.Wait();
             }
             catch (Exception e)
             {
-                Logger.Log($"Command execution {commandExecution} failed - {e.Message}");
+                Logger.Log($"Job execution {jobExecution} failed - {e.Message}");
             }
         }
 
@@ -139,7 +139,7 @@ namespace Executor.Console.Executors
             var waitToStopTask = new Task(() =>
             {
                 _stopped.WaitOne();
-                Logger.Log("SingleCommandAtOnceExecutor stopped");
+                Logger.Log("SingleAtOnceExecutor stopped");
             });
             waitToStopTask.Start();
             return waitToStopTask;
