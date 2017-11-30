@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Executor.Console
+namespace Executor.Console.Commands
 {
     public abstract class VoidCommand<TArgs> : ICommand<TArgs, Unit>
     {

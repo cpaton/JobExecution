@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Executor.Console.Util;
 
-namespace Executor.Console
+namespace Executor.Console.Commands
 {
     public class ShortDelayCommand : VoidCommand<string>
     {

@@ -1,6 +1,6 @@
 using System.Threading;
 
-namespace Executor.Console
+namespace Executor.Console.Util
 {
     public static class Logger
     {
