@@ -10,7 +10,9 @@ namespace Executor.Console.Util
         {
             lock (LockObject)
             {
-                System.Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId} ({Thread.CurrentThread.Name})] {message}");
+                var threadIdentiifer = string.IsNullOrWhiteSpace(Thread.CurrentThread.Name) ?
+                Thread.CurrentThread.ManagedThreadId.ToString() : Thread.CurrentThread.Name;
+                System.Console.WriteLine($"[{threadIdentiifer}] {message}");
             }
         }
     }

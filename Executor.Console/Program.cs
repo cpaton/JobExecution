@@ -9,7 +9,7 @@ namespace Executor.Console
 {
     class Program
     {
-        public static async Task Main(string[] args)
+        public static void Main(string[] args)
         {
             Thread.CurrentThread.Name = "Main";
             var executor = new SingleAtOnceExecutor();
@@ -17,16 +17,23 @@ namespace Executor.Console
             executor.Start();
             threadPoolExecutor.Start();
 
-            for (int i = 1; i <= 5; i++)
+
+            var jobExecutor = new JobExecutor(threadPoolExecutor);
+            var oneAtATimePolicy = new OneAtATimePolicy<ShortDelayJob>(executor);
+            jobExecutor.AddPolicies(oneAtATimePolicy);
+
+            for (int i = 1; i <= 2; i++)
             {
 #pragma warning disable 4014
-                executor.SubmitCommandForExecution(new ShortDelayJob($"{i}-single"));
-                threadPoolExecutor.SubmitCommandForExecution(new ShortDelayJob($"{i}-pool"));
+                jobExecutor.SubmitJob(new ShortDelayJob($"Job{i}"));
+                jobExecutor.SubmitJob(new RandomDelayJob($"Job{i}"));
+                jobExecutor.SubmitJob(new AutoCompleteJob($"Job{i}"));
 #pragma warning restore 4014
             }
 
-            await executor.Stop();
-            await threadPoolExecutor.Stop();
+            var task1 = executor.Stop();
+            var task2 = threadPoolExecutor.Stop();
+            Task.WaitAll(task1, task2);
             Logger.Log("End");
         }
     }

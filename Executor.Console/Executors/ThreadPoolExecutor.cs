@@ -7,13 +7,19 @@ using Executor.Console.Util;
 
 namespace Executor.Console.Executors
 {
-    public class ThreadPoolExecutor
+    public class ThreadPoolExecutor : IJobExecutor
     {
         private bool _running = false;
         private readonly List<Task> _outstandingTasks = new List<Task>();
         private readonly object _lockObject = new object();
+        private TaskFactory _threadPoolTaskFactory;
 
-        public Task<TResult> SubmitCommandForExecution<TResult>(Job<TResult> job)
+        public ThreadPoolExecutor()
+        {
+            _threadPoolTaskFactory = new TaskFactory(TaskScheduler.Default);
+        }
+
+        public Task<TResult> SubmitJob<TResult>(Job<TResult> job)
         {
             if (!_running)
             {
@@ -28,6 +34,11 @@ namespace Executor.Console.Executors
             return commandExecutionRequest.ResultTask;
         }
 
+        public Task SubmitJob(Job<Unit> job)
+        {
+            return SubmitJob<Unit>(job);
+        }
+
         public void Start()
         {
             _running = true;
@@ -36,30 +47,36 @@ namespace Executor.Console.Executors
 
         private void ExecuteRequest(JobExecution jobExecution)
         {
-            Logger.Log($"Executing {jobExecution}");
-            ThreadPool.QueueUserWorkItem(_ => 
+            _threadPoolTaskFactory.StartNew(() =>
             {
+                Logger.Log($"Executing {jobExecution}");
                 var task = jobExecution.ExecuteJob();
-                _outstandingTasks.Add(task);
-                task.ContinueWith((t, __) => 
+                lock (_lockObject)
                 {
-                    if (Monitor.TryEnter(_lockObject, TimeSpan.FromMinutes(1)))
-                    {
-                        try 
-                        {
-                            _outstandingTasks.Remove(task);
-                            Monitor.Pulse(_lockObject);
-                        }
-                        finally 
-                        {
-                            Monitor.Exit(_lockObject);
-                        }
-                    }
-                }, null);
+                    _outstandingTasks.Add(task);
+                }
+                task.ContinueWith((t, __) =>
+                                  {
+                                      Logger.Log($"Finished executing {jobExecution}");
+                                      if (Monitor.TryEnter(_lockObject, TimeSpan.FromMinutes(1)))
+                                      {
+                                          try
+                                          {
+                                              _outstandingTasks.Remove(task);
+                                              Monitor.Pulse(_lockObject);
+                                          }
+                                          finally
+                                          {
+                                              Monitor.Exit(_lockObject);
+                                          }
+                                      }
+                                  },
+                                  null,
+                                  _threadPoolTaskFactory.Scheduler);
             });
         }
 
-        public Task Stop()
+        public async Task Stop()
         {
             Logger.Log($"[{GetType().Name}] Stopping");
             _running = false;
@@ -80,10 +97,10 @@ namespace Executor.Console.Executors
                         Monitor.Exit(_lockObject);
                     }
                 }
+                await Task.Delay(TimeSpan.FromMilliseconds(200));
             }
 
             Logger.Log($"[{GetType().Name}] Stopped");
-            return Task.CompletedTask;
         }
     }
 }

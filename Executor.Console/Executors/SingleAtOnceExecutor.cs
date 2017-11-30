@@ -7,7 +7,7 @@ using Executor.Console.Util;
 
 namespace Executor.Console.Executors
 {
-    public class SingleAtOnceExecutor
+    public class SingleAtOnceExecutor : IJobExecutor
     {
         private readonly Queue<JobExecution> _executionQueue = new Queue<JobExecution>();
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
@@ -15,7 +15,7 @@ namespace Executor.Console.Executors
         private readonly ManualResetEvent _stopped = new ManualResetEvent(true);
         private Thread _executionThread;
 
-        public Task<TResult> SubmitCommandForExecution<TResult>(Job<TResult> job)
+        public Task<TResult> SubmitJob<TResult>(Job<TResult> job)
         {
             if (_cancellationTokenSource.IsCancellationRequested)
             {
@@ -42,6 +42,11 @@ namespace Executor.Console.Executors
             }
 
             return commandExecutionRequest.ResultTask;
+        }
+
+        public Task SubmitJob(Job<Unit> job)
+        {
+            return SubmitJob<Unit>(job);
         }
 
         public void Start()

@@ -4,19 +4,20 @@ using Executor.Console.Util;
 
 namespace Executor.Console.Job
 {
-    public class ShortDelayJob : VoidJob
+    public class RandomDelayJob : VoidJob
     {
         private readonly string _name;
 
-        public ShortDelayJob(string name)
+        public RandomDelayJob(string name)
         {
             _name = name;
         }
 
         protected override async Task Execute()
         {
-            Logger.Log($"[{ToString()}] Starting execution");
-            await Task.Delay(TimeSpan.FromSeconds(1));
+            var waitTimeMilliseconds = new Random().Next(1000);
+            Logger.Log($"[{ToString()}] Starting execution ({waitTimeMilliseconds})");
+            await Task.Delay(TimeSpan.FromMilliseconds(waitTimeMilliseconds));
             Logger.Log($"[{ToString()}] Finishing execution");
         }
 
