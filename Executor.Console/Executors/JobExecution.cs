@@ -9,7 +9,7 @@ namespace Executor.Console.Executors
         public Guid ExeuctionId { get; }
         public string RequestTrace { get; }
         public TimeSpan RunTime => CompletedTimeUtc - StartTimeUtc;
-        public DateTimeOffset RequestTimeUtc { get; private set; }
+        public DateTimeOffset RequestTimeUtc { get; }
         public DateTimeOffset StartTimeUtc { get; private set; }
         public DateTimeOffset CompletedTimeUtc { get; private set; }
         public bool HasStarted => StartTimeUtc != default(DateTimeOffset);

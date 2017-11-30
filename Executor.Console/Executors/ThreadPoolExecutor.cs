@@ -13,7 +13,7 @@ namespace Executor.Console.Executors
         private readonly List<Task> _outstandingTasks = new List<Task>();
         private readonly object _lockObject = new object();
 
-        public Task<TResult> SubmitCommandForExecution<TArgs, TResult>(Job<TArgs, TResult> job, TArgs args)
+        public Task<TResult> SubmitCommandForExecution<TResult>(Job<TResult> job)
         {
             if (!_running)
             {
@@ -23,14 +23,9 @@ namespace Executor.Console.Executors
                 return taskCompletionSource.Task;
             }
 
-            var commandExecutionRequest = new JobExecutionRequest<TArgs, TResult>(job, args, Environment.StackTrace);
+            var commandExecutionRequest = new JobExecutionRequest<TResult>(job, Environment.StackTrace);
             ExecuteRequest(commandExecutionRequest);
             return commandExecutionRequest.ResultTask;
-        }
-
-        internal void SubmitCommandForExecution(VoidJob job)
-        {
-            SubmitCommandForExecution(job, default(Unit));
         }
 
         public void Start()

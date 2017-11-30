@@ -4,13 +4,25 @@ using Executor.Console.Util;
 
 namespace Executor.Console.Job
 {
-    public class ShortDelayJob : VoidJob<string>
+    public class ShortDelayJob : VoidJob
     {
-        protected override async Task Execute(string name)
+        private readonly string _name;
+
+        public ShortDelayJob(string name)
         {
-            Logger.Log($"[{name}] Starting execution");
+            _name = name;
+        }
+
+        protected override async Task Execute()
+        {
+            Logger.Log($"[{_name}] Starting execution");
             await Task.Delay(TimeSpan.FromSeconds(1));
-            Logger.Log($"[{name}] Finishing execution");
+            Logger.Log($"[{_name}] Finishing execution");
+        }
+
+        public override string ToString()
+        {
+            return $"{GetType().Name}({_name})";
         }
     }
 }

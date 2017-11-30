@@ -2,8 +2,8 @@ using System.Threading.Tasks;
 
 namespace Executor.Console.Job
 {
-    public interface Job<TArgs, TResult>
+    public interface Job<TResult>
     {
-        Task<TResult> Execute(TArgs args);
+        Task<TResult> Execute();
     }
 }

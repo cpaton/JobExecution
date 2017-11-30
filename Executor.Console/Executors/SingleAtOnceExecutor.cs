@@ -15,7 +15,7 @@ namespace Executor.Console.Executors
         private readonly ManualResetEvent _stopped = new ManualResetEvent(true);
         private Thread _executionThread;
 
-        public Task<TResult> SubmitCommandForExecution<TArgs, TResult>(Job<TArgs, TResult> job, TArgs args)
+        public Task<TResult> SubmitCommandForExecution<TResult>(Job<TResult> job)
         {
             if (_cancellationTokenSource.IsCancellationRequested)
             {
@@ -25,7 +25,7 @@ namespace Executor.Console.Executors
                 return taskCompletionSource.Task;
             }
 
-            var commandExecutionRequest = new JobExecutionRequest<TArgs, TResult>(job, args, Environment.StackTrace);
+            var commandExecutionRequest = new JobExecutionRequest<TResult>(job, Environment.StackTrace);
 
             if (Monitor.TryEnter(_lockObject, TimeSpan.FromMinutes(1)))
             {

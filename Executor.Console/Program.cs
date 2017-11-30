@@ -17,12 +17,11 @@ namespace Executor.Console
             executor.Start();
             threadPoolExecutor.Start();
 
-            var shortDelayCommand = new ShortDelayJob();
             for (int i = 1; i <= 5; i++)
             {
 #pragma warning disable 4014
-                executor.SubmitCommandForExecution(shortDelayCommand, $"{i}-single");
-                threadPoolExecutor.SubmitCommandForExecution(shortDelayCommand, $"{i}-pool");
+                executor.SubmitCommandForExecution(new ShortDelayJob($"{i}-single"));
+                threadPoolExecutor.SubmitCommandForExecution(new ShortDelayJob($"{i}-pool"));
 #pragma warning restore 4014
             }
 
