@@ -10,10 +10,10 @@ namespace Executor.Console.Executors
         public ICommand<TArgs, TResult> Command { get; }
         public TArgs Args { get; }
         public Task<TResult> ResultTask { get; }
-        public string RequestTrace { get; }
         public TimeSpan RunTime => CompletedTimeUtc - StartTimeUtc;
         public DateTimeOffset StartTimeUtc { get; private set; }
         public DateTimeOffset CompletedTimeUtc { get; private set; }
+        public string RunTimeFriendly => $"{RunTime.Hours}h {RunTime.Minutes:00}m {RunTime.Seconds:00}s {RunTime.Milliseconds:000}ms";
 
         public CommandExecutionRequest(ICommand<TArgs, TResult> command, TArgs args, string requestTrace) : base(requestTrace)
         {
