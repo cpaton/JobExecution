@@ -12,17 +12,17 @@ namespace Executor.Console
         public static void Main(string[] args)
         {
             Thread.CurrentThread.Name = "Main";
-            var executor = new SingleAtOnceExecutor();
-            var threadPoolExecutor = new ThreadPoolExecutor();
-            executor.Start();
-            threadPoolExecutor.Start();
+            var oneAtATimeEngine = new SingleAtOnceExecutionEngine();
+            var threadPoolEngine = new ThreadPoolExecutionEngine();
+            oneAtATimeEngine.Start();
+            threadPoolEngine.Start();
 
 
-            var jobExecutor = new JobExecutor(threadPoolExecutor);
-            var oneAtATimePolicy = new OneAtATimePolicy<ShortDelayJob>(executor);
+            var jobExecutor = new JobExecutor(threadPoolEngine);
+            var oneAtATimePolicy = new OneAtATimePolicy<ShortDelayJob>(oneAtATimeEngine);
             jobExecutor.AddPolicies(oneAtATimePolicy);
 
-            for (int i = 1; i <= 2; i++)
+            for (int i = 1; i <= 5; i++)
             {
 #pragma warning disable 4014
                 jobExecutor.SubmitJob(new ShortDelayJob($"Job{i}"));
@@ -31,8 +31,8 @@ namespace Executor.Console
 #pragma warning restore 4014
             }
 
-            var task1 = executor.Stop();
-            var task2 = threadPoolExecutor.Stop();
+            var task1 = oneAtATimeEngine.Stop();
+            var task2 = threadPoolEngine.Stop();
             Task.WaitAll(task1, task2);
             Logger.Log("End");
         }
