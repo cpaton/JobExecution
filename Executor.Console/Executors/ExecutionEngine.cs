@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Executor.Console.Util;
 
 namespace Executor.Console.Executors
 {
@@ -18,6 +19,11 @@ namespace Executor.Console.Executors
         protected void WithLock(Action toPerformWithinLock, Action ifUnableToObtainLock)
         {
             WithLock(_ => toPerformWithinLock(), ifUnableToObtainLock);
+        }
+
+        protected void Log(string message)
+        {
+            Logger.Log($"[{GetType().Name}] {message}");
         }
 
         protected void WithLock(Action<object> toPerformWithinLock, Action ifUnableToObtainLock)

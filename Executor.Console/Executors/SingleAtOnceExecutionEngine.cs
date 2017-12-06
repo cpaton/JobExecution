@@ -30,14 +30,14 @@ namespace Executor.Console.Executors
         {
             if (_cancellationTokenSource.IsCancellationRequested)
             {
-                Logger.Log($"Not enqueing {jobExecutionRequest.JobSummary()} as executionEngine is stopped");
+                Log($"Not enqueing {jobExecutionRequest.JobSummary()} as executionEngine is stopped");
                 jobExecutionRequest.Cancel();
                 return false;
             }
 
             WithLock(lockObject =>
                      {
-                         Logger.Log($"Enqueuing job {jobExecutionRequest.JobSummary()}");
+                         Log($"Enqueuing job {jobExecutionRequest.JobSummary()}");
                          _executionQueue.Enqueue(jobExecutionRequest);
                          Monitor.Pulse(lockObject);
                      },
@@ -63,28 +63,29 @@ namespace Executor.Console.Executors
 
         public Task Stop(bool waitForCurrentExecutingJobsToComplete = true)
         {
-            Logger.Log("Requesting executionEngine to stop...");
+            Log("Requesting executionEngine to stop...");
             _cancellationTokenSource.Cancel();
             WithLock(lockObject => Monitor.Pulse(lockObject),
                      () => throw new Exception("Unable to process request to stop the execution engine as the lock could not be acquired"));
 
             if (!waitForCurrentExecutingJobsToComplete)
             {
+                Log("Stopped");
                 return Task.CompletedTask;
             }
 
-            Logger.Log("Waiting for executionEngine to stop....");
+            Log("Waiting for executionEngine to stop....");
             var waitToStopTask = Task.Run(() =>
             {
                 _stopped.WaitOne();
-                Logger.Log("SingleAtOnceExecutionEngine stopped");
+                Log("Stopped");
             });
             return waitToStopTask;
         }
 
         private void ExecutionLoop()
         {
-            Logger.Log("SingleAtOnceExecutionEngine starting");
+            Log("Starting");
 
             _stopped.Reset();
             var cancellationToken = _cancellationTokenSource.Token;
@@ -119,13 +120,13 @@ namespace Executor.Console.Executors
                 }
             }
 
-            Logger.Log("Execution ending");
+            Log("Execution loop ending");
             _stopped.Set();
         }
 
         private void ExecuteRequest(JobExecutionRequest jobExecutionRequest)
         {
-            Logger.Log($"Executing {jobExecutionRequest.JobSummary()}");
+            Log($"Executing {jobExecutionRequest.JobSummary()}");
             try
             {
                 var executionTask = jobExecutionRequest.ExecuteJob();
@@ -133,7 +134,7 @@ namespace Executor.Console.Executors
             }
             catch (Exception e)
             {
-                Logger.Log($"Job execution {jobExecutionRequest.JobSummary()} failed - {e.Message}");
+                Log($"Job execution {jobExecutionRequest.JobSummary()} failed - {e.Message}");
             }
         }
     }

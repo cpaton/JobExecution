@@ -16,7 +16,7 @@ namespace Executor.Console.Job
         protected override async Task Execute()
         {
             Logger.Log($"[{ToString()}] Starting execution");
-            await Task.Delay(TimeSpan.FromSeconds(1));
+            await Task.Delay(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
             Logger.Log($"[{ToString()}] Finishing execution");
         }
 

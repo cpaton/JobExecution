@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Executor.Console.Job;
+using Executor.Console.Util;
 
 namespace Executor.Console.Executors
 {
@@ -32,7 +33,7 @@ namespace Executor.Console.Executors
         {
             try
             {
-                var commandResult = await Job.Execute();
+                var commandResult = await Job.Execute().ConfigureAwait(false);
                 _taskCompletionSource.SetResult(commandResult);
             }
             catch (Exception e)

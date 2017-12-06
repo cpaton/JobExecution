@@ -6,7 +6,7 @@ namespace Executor.Console.Job
     {
         async Task<Unit> Job<Unit>.Execute()
         {
-            await Execute();
+            await Execute().ConfigureAwait(false);
             return default(Unit);
         }
 

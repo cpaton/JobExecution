@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Executor.Console.Util;
 
 namespace Executor.Console.Executors
 {
@@ -61,7 +62,7 @@ namespace Executor.Console.Executors
             StartTimeUtc = DateTimeOffset.UtcNow;
             try
             {
-                await Execute();
+                await Execute().ConfigureAwait(false);
             }
             finally
             {
